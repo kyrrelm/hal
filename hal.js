@@ -46,19 +46,6 @@ function loginAndListen(emailInput,passwordInput){
 	});
 }
 
-
-
-function createReply(message){
-	if (!message.body.toLowerCase().startsWith(activationString.concat(" "))) {
-		return null;
-	}
-	reply = "I am afraid i can't answer that";
-	if (message.body === "Open the pod bay doors, HAL") {
-		reply = "I’m sorry, Dave, I’m afraid I can’t do that.";
-	}
-	return reply;
-}
-
 var set = {};
 function shouldShowWelcomeMessage(message){
 	if (!welcomeMessage) {
@@ -72,4 +59,15 @@ function shouldShowWelcomeMessage(message){
 		return true;
 	}
 	return false;
+}
+
+function createReply(message){
+	if (!message.body.toLowerCase().startsWith(activationString.concat(" "))) {
+		return null;
+	}
+	//Open the pod bay doors, HAL
+	if (/open the pod.*/.test(message.body.toLowerCase())) {
+		return "I’m sorry, Dave, I’m afraid I can’t do that.";
+	}
+	return "I am afraid i can't answer that";
 }
