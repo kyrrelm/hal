@@ -86,7 +86,7 @@ function createReply(api, message, callback){
 	else if (/open the pod/.test(messageValue)) {
 		callback("I’m sorry, Dave, I’m afraid I can’t do that.");
 	}
-	else if (/how old are you/.test(messageValue)) {
+	else if (/how old are you/.test(messageValue) || /your age/.test(messageValue)) {
 		callback("I’m "+daydiff(birthday, Date.now())+" days old");
 	}
 	else if (/created you/.test(messageValue) || /your creator/.test(messageValue)) {
@@ -94,6 +94,9 @@ function createReply(api, message, callback){
 	}
 	else if (/kristian skog gay/.test(messageValue) || /kristian gay/.test(messageValue) || /skog gay/.test(messageValue)) {
 		callback("Yes, yes he is!");
+	}
+	else if (/what is the meaning of life/.test(messageValue)) {
+		callback("42");
 	}
 	else if (/who should*/.test(messageValue)) {
 		pickRandomParticipant(api, message.threadID, function(chosen) {
