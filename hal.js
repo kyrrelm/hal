@@ -1,6 +1,10 @@
 var login = require("facebook-chat-api");
 var prompt = require('prompt');
 
+//CHANGE THIS FOR TESTING
+//not case sensitive
+var activationString = "hal";
+
 var schema = {
 properties: {
   email: {
@@ -27,18 +31,29 @@ function loginAndListen(emailInput,passwordInput){
 	    api.listen(function callback(err, message) {
 	    	var reply = "";
 	    	if (shouldShowWelcomeMessage(message)) {
-	    		reply = "HAL 9000: Kyrre is not here right now. I am kyrre's personal assistant, how can I help you?";
+	    		api.sendMessage("I am HAL 9000, activate me by starting a message with \'hal\'", message.threadID);
 	    	}else{
-	    		reply = "HAL 9000: I am afraid i can't answer that";
-	    		if (message.body === "Open the pod bay doors, HAL") {
-	    			reply = "HAL 9000: I’m sorry, Dave, I’m afraid I can’t do that.";
+	    		reply = createReply(message);
+	    		if (reply !== null) {
+	        		api.sendMessage(reply, message.threadID);
 	    		}
 	    	}
-	        api.sendMessage(reply, message.threadID);
 	    });
 	});
 }
 
+
+
+function createReply(message){
+	if (!message.body.toLowerCase().startsWith(activationString.concat(" "))) {
+		return null;
+	}
+	reply = "I am afraid i can't answer that";
+	if (message.body === "Open the pod bay doors, HAL") {
+		reply = "I’m sorry, Dave, I’m afraid I can’t do that.";
+	}
+	return reply;
+}
 
 var set = {};
 function shouldShowWelcomeMessage(message){
