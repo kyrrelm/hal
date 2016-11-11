@@ -72,7 +72,7 @@ function createReply(api, message, callback){
 		callback(null);
 	}
 
-	if(/you there/.test(messageValue)){
+	else if(/you there/.test(messageValue)){
 		getUsername(api, message, function(name){
 			callback("Yes i am here "+name);
 		})
