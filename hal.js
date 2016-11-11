@@ -5,6 +5,10 @@ var prompt = require('prompt');
 //not case sensitive
 var activationString = "hil";
 var welcomeMessage = false;
+var credentials = {
+	email: "deep.into.my.thoughts@gmail.com",
+	password: "RagnarKro42"
+}
 
 var schema = {
 	properties: {
@@ -13,7 +17,6 @@ var schema = {
 	  },
 	  password: {
 	  	message: 'password',
-	  	required: true,
 	    hidden: true
 	  }
 	}
@@ -22,11 +25,10 @@ var schema = {
 prompt.start();
 
 prompt.get(schema, function (err, result) {
-	var email = result.email;
-	if (!email) {
-		email = "deep.into.my.thoughts@gmail.com"
-	}
-	loginAndListen(email, result.password);
+	var email = result.email || credentials.email
+	var password = result.password || credentials.password
+
+	loginAndListen(email, password);
 });
 
 function loginAndListen(emailInput,passwordInput){
@@ -37,11 +39,11 @@ function loginAndListen(emailInput,passwordInput){
 	    	if (shouldShowWelcomeMessage(message)) {
 	    		api.sendMessage("I am HAL 9000, activate me by starting a message with \'hal\'", message.threadID);
 	    	}else{
-	    		reply = createReply(api, message);
-	    		console.log("Reply", reply);
-	    		if (reply !== null) {
-	        		api.sendMessage(reply, message.threadID);
-	    		}
+	    		var reply = createReply(api, message);
+    			console.log("Reply", reply);
+    			if (reply !== null) {
+        			api.sendMessage(reply, message.threadID);
+    			};
 	    	}
 	    });
 	});
@@ -78,7 +80,10 @@ function createReply(api, message){
 		var chosenParticipant = pickRandomParticipant(api, message.threadID)
 		return chosenParticipant;
 	}
-	return "I am afraid i can't answer that";
+
+	else {
+		return "I am afraid i can't answer that";
+	}
 }
 
 function pickRandomParticipant(api, threadID) {
@@ -94,7 +99,7 @@ function pickRandomParticipant(api, threadID) {
 				if (userId !== currentUserId) {
 					usersInThread.push(users[userId].name)
 				}
-			}
+			} 
 
 			return usersInThread[Math.floor(Math.random()*usersInThread.length)];
 		})
