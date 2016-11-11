@@ -1,5 +1,7 @@
 var login = require("facebook-chat-api");
 var prompt = require('prompt');
+const birthday = 853027200;
+
 
 //CHANGE THIS FOR TESTING
 //not case sensitive
@@ -65,30 +67,53 @@ function shouldShowWelcomeMessage(message){
 	return false;
 }
 
+function daydiff(first, second) {
+    return Math.round((second-first)/(1000*60*60*24));
+}
+
+function throwDices(number){
+	var output = ""
+	for (var i = 0; i < number; i++) {
+		output += Math.ceil(Math.random()*6)+ " ";
+	}
+	return output;
+}
+
 function createReply(api, message, callback){
 	var messageValue = message.body.toLowerCase();
 
 	if (!messageValue.startsWith(activationString.concat(" "))) {
 		callback(null);
 	}
-
 	else if(/you there/.test(messageValue)){
 		getUsername(api, message, function(name){
 			callback("Yes i am here "+name);
 		})
 	}
-
 	//Open the pod bay doors, HAL
-	else if (/open the pod.*/.test(messageValue)) {
+	else if (/open the pod/.test(messageValue)) {
 		callback("I’m sorry, Dave, I’m afraid I can’t do that.");
 	}
-
-	else if (/who should*/.test(messageValue)) {
+	else if (/how old are you/.test(messageValue) || /your age/.test(messageValue)) {
+		callback("I’m "+daydiff(birthday, Date.now())+" days old");
+	}
+	else if (/created you/.test(messageValue) || /your creator/.test(messageValue)) {
+		callback("Arthur C. Clarke, Stanley Kubrick, Kyrre Laugerud Moe and Paul Philip Mitchell are my creators <3");
+	}
+	else if (/kristian skog gay/.test(messageValue) || /kristian gay/.test(messageValue) || /skog gay/.test(messageValue)) {
+		callback("Yes, yes he is!");
+	}
+	else if (/what is the meaning of life/.test(messageValue)) {
+		callback("42");
+	}
+	else if (/dice/.test(messageValue)){
+		callback(throwDices(1));
+	}
+	else if (/who should*/.test(messageValue) || /pick*/.test(messageValue)) {
 		pickRandomParticipant(api, message.threadID, function(chosen) {
 			callback(chosen);
 		})
 	}
-
 	else {
 		callback("I am afraid i can't answer that");
 	}
