@@ -92,11 +92,13 @@ function createReply(api, message, callback){
 	else if(/you there/.test(messageValue)){
 		getUsername(api, message, function(name){
 			callback("Yes i am here "+name);
-		})
+		});
 	}
 	//Open the pod bay doors, HAL
 	else if (/open the pod/.test(messageValue)) {
-		callback("I’m sorry, Dave, I’m afraid I can’t do that.");
+		getUsername(api, message, function(name){
+			callback("I’m sorry, "+name+", I’m afraid I can’t do that.");	
+		});
 	}
 	else if (/how old are you/.test(messageValue) || /your age/.test(messageValue)) {
 		callback("I’m "+daydiff(birthday, Date.now())+" days old");
@@ -119,7 +121,7 @@ function createReply(api, message, callback){
 	else if (/who should*/.test(messageValue) || /pick*/.test(messageValue)) {
 		pickRandomParticipant(api, message.threadID, function(chosen) {
 			callback(chosen);
-		})
+		});
 	}
 	else {
 		callback("I am afraid i can't answer that");
