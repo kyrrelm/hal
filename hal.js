@@ -3,20 +3,20 @@ var prompt = require('prompt');
 
 //CHANGE THIS FOR TESTING
 //not case sensitive
-var activationString = "hal";
+var activationString = "hil";
 var welcomeMessage = false;
 
 var schema = {
-properties: {
-  email: {
-    message: 'email',
-  },
-  password: {
-  	message: 'password',
-  	required: true,
-    hidden: true
-  }
-}
+	properties: {
+	  email: {
+	    message: 'email',
+	  },
+	  password: {
+	  	message: 'password',
+	  	required: true,
+	    hidden: true
+	  }
+	}
 };
 
 prompt.start();
@@ -37,7 +37,8 @@ function loginAndListen(emailInput,passwordInput){
 	    	if (shouldShowWelcomeMessage(message)) {
 	    		api.sendMessage("I am HAL 9000, activate me by starting a message with \'hal\'", message.threadID);
 	    	}else{
-	    		reply = createReply(message);
+	    		reply = createReply(api, message);
+	    		console.log("Reply", reply);
 	    		if (reply !== null) {
 	        		api.sendMessage(reply, message.threadID);
 	    		}
@@ -61,13 +62,41 @@ function shouldShowWelcomeMessage(message){
 	return false;
 }
 
-function createReply(message){
-	if (!message.body.toLowerCase().startsWith(activationString.concat(" "))) {
+function createReply(api, message){
+	var messageValue = message.body.toLowerCase();
+	console.log("Message: ", messageValue)
+
+	if (!messageValue.startsWith(activationString.concat(" "))) {
 		return null;
 	}
 	//Open the pod bay doors, HAL
-	if (/open the pod.*/.test(message.body.toLowerCase())) {
+	if (/open the pod.*/.test(messageValue)) {
 		return "I’m sorry, Dave, I’m afraid I can’t do that.";
 	}
+
+	if (/who should*/.test(messageValue)) {
+		var chosenParticipant = pickRandomParticipant(api, message.threadID)
+		return chosenParticipant;
+	}
 	return "I am afraid i can't answer that";
+}
+
+function pickRandomParticipant(api, threadID) {
+	api.getThreadInfo(threadID, function callback(err, info) {
+		if (err) return console.error(err);
+
+		api.getUserInfo(info.participantIDs, function callback(err, users) {
+			if (err) return console.error(err);
+
+			var currentUserId = api.getCurrentUserID();
+			var usersInThread = []
+			for (var userId in users) {
+				if (userId !== currentUserId) {
+					usersInThread.push(users[userId].name)
+				}
+			}
+
+			return usersInThread[Math.floor(Math.random()*usersInThread.length)];
+		})
+	})
 }
