@@ -39,11 +39,12 @@ function loginAndListen(emailInput,passwordInput){
 	    	if (shouldShowWelcomeMessage(message)) {
 	    		api.sendMessage("I am HAL 9000, activate me by starting a message with \'hal\'", message.threadID);
 	    	}else{
-	    		var reply = createReply(api, message);
-    			console.log("Reply", reply);
-    			if (reply !== null) {
-        			api.sendMessage(reply, message.threadID);
-    			};
+	    		createReply(api, message, function callback(reply) {
+	    			console.log("Reply", reply);
+	    			if (reply !== null) {
+	        			api.sendMessage(reply, message.threadID);
+	    			};
+	    		})
 	    	}
 	    });
 	});
@@ -64,21 +65,23 @@ function shouldShowWelcomeMessage(message){
 	return false;
 }
 
-function createReply(api, message){
+function createReply(api, message, callback){
 	var messageValue = message.body.toLowerCase();
-	console.log("Message: ", messageValue)
-
 	if (!messageValue.startsWith(activationString.concat(" "))) {
-		return null;
+		callback(null);
+		return;
 	}
 	//Open the pod bay doors, HAL
-	if (/open the pod.*/.test(messageValue)) {
-		return "I’m sorry, Dave, I’m afraid I can’t do that.";
+	else if (/open the pod.*/.test(messageValue)) {
+		callback("I’m sorry, Dave, I’m afraid I can’t do that.");
+		return;
 	}
 
-	if (/who should*/.test(messageValue)) {
-		var chosenParticipant = pickRandomParticipant(api, message.threadID)
-		return chosenParticipant;
+	else if (/who should*/.test(messageValue)) {
+		pickRandomParticipant(api, message.threadID, function callback(chosen) {
+			callback(chosen);
+		})
+		return;
 	}
 
 	else {
@@ -86,7 +89,7 @@ function createReply(api, message){
 	}
 }
 
-function pickRandomParticipant(api, threadID) {
+function pickRandomParticipant(api, threadID, callback) {
 	api.getThreadInfo(threadID, function callback(err, info) {
 		if (err) return console.error(err);
 
@@ -101,7 +104,7 @@ function pickRandomParticipant(api, threadID) {
 				}
 			} 
 
-			return usersInThread[Math.floor(Math.random()*usersInThread.length)];
+			callback(usersInThread[Math.floor(Math.random()*usersInThread.length)]);
 		})
 	})
 }
