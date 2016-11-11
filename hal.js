@@ -4,12 +4,12 @@ var prompt = require('prompt');
 //CHANGE THIS FOR TESTING
 //not case sensitive
 var activationString = "hal";
+var welcomeMessage = false;
 
 var schema = {
 properties: {
   email: {
     message: 'email',
-    required: true
   },
   password: {
   	message: 'password',
@@ -22,7 +22,11 @@ properties: {
 prompt.start();
 
 prompt.get(schema, function (err, result) {
-	loginAndListen(result.email, result.password);
+	var email = result.email;
+	if (!email) {
+		email = "deep.into.my.thoughts@gmail.com"
+	}
+	loginAndListen(email, result.password);
 });
 
 function loginAndListen(emailInput,passwordInput){
@@ -30,7 +34,7 @@ function loginAndListen(emailInput,passwordInput){
 	    if(err) return console.error(err);
 	    api.listen(function callback(err, message) {
 	    	var reply = "";
-	    	if (shouldShowWelcomeMessage(message)) {
+	    	if (welcomeMessage && shouldShowWelcomeMessage(message)) {
 	    		api.sendMessage("I am HAL 9000, activate me by starting a message with \'hal\'", message.threadID);
 	    	}else{
 	    		reply = createReply(message);
