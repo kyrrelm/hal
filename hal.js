@@ -39,7 +39,7 @@ function loginAndListen(emailInput,passwordInput){
 	    	if (shouldShowWelcomeMessage(message)) {
 	    		api.sendMessage("I am HAL 9000, activate me by starting a message with \'hal\'", message.threadID);
 	    	}else{
-	    		createReply(api, message, function callback(reply) {
+	    		createReply(api, message, function(reply) {
 	    			console.log("Reply", reply);
 	    			if (reply !== null) {
 	        			api.sendMessage(reply, message.threadID);
@@ -84,7 +84,7 @@ function createReply(api, message, callback){
 	}
 
 	else if (/who should*/.test(messageValue)) {
-		pickRandomParticipant(api, message.threadID, function callback(chosen) {
+		pickRandomParticipant(api, message.threadID, function(chosen) {
 			callback(chosen);
 		})
 	}
@@ -102,10 +102,10 @@ function getUsername(api, message, callback){
 }
 
 function pickRandomParticipant(api, threadID, callback) {
-	api.getThreadInfo(threadID, function callback(err, info) {
+	api.getThreadInfo(threadID, function(err, info) {
 		if (err) return console.error(err);
 
-		api.getUserInfo(info.participantIDs, function callback(err, users) {
+		api.getUserInfo(info.participantIDs, function(err, users) {
 			if (err) return console.error(err);
 
 			var currentUserId = api.getCurrentUserID();
