@@ -71,6 +71,14 @@ function daydiff(first, second) {
     return Math.round((second-first)/(1000*60*60*24));
 }
 
+function throwDices(number){
+	var output = ""
+	for (var i = 0; i < number; i++) {
+		output += Math.ceil(Math.random()*6)+ " ";
+	}
+	return output;
+}
+
 function createReply(api, message, callback){
 	var messageValue = message.body.toLowerCase();
 
@@ -98,7 +106,10 @@ function createReply(api, message, callback){
 	else if (/what is the meaning of life/.test(messageValue)) {
 		callback("42");
 	}
-	else if (/who should*/.test(messageValue)) {
+	else if (/dice/.test(messageValue)){
+		callback(throwDices(1));
+	}
+	else if (/who should*/.test(messageValue) || /pick*/.test(messageValue)) {
 		pickRandomParticipant(api, message.threadID, function(chosen) {
 			callback(chosen);
 		})
