@@ -1,6 +1,6 @@
 var login = require("facebook-chat-api");
 var prompt = require('prompt');
-const birthday = 853027200;
+const birthday = 853027200000;
 
 
 //CHANGE THIS FOR TESTING
@@ -97,7 +97,10 @@ function createReply(api, message, callback){
 	else if (/how old are you/.test(messageValue) || /your age/.test(messageValue)) {
 		callback("I’m "+daydiff(birthday, Date.now())+" days old");
 	}
-	else if (/created you/.test(messageValue) || /your creator/.test(messageValue)) {
+	else if (/your birthday/.test(messageValue) || /your date of birth/.test(messageValue)) {
+		callback("My birthday is "+new Date(birthday).toString());
+	}
+	else if (/created you/.test(messageValue) || /your creator/.test(messageValue) || /your maker/.test(messageValue) || /made you/.test(messageValue)) {
 		callback("Arthur C. Clarke, Stanley Kubrick, Kyrre Laugerud Moe and Paul Philip Mitchell are my creators <3");
 	}
 	else if (/kristian skog gay/.test(messageValue) || /kristian gay/.test(messageValue) || /skog gay/.test(messageValue)) {
