@@ -1,5 +1,6 @@
-var login = require("facebook-chat-api");
-var prompt = require('prompt');
+const fs = require('fs');
+const login = require("facebook-chat-api");
+const prompt = require('prompt');
 const birthday = 853027200000;
 
 
@@ -74,9 +75,12 @@ function daydiff(first, second) {
 function throwDices(number){
 	var output = ""
 	for (var i = 0; i < number; i++) {
-		output += Math.ceil(Math.random()*6)+ " ";
+		output += Math.ceil(Math.random()*6);
 	}
-	return output;
+	var msg = {
+		attachment: fs.createReadStream('img/dice'+output+'.png')
+    }
+	return msg;
 }
 
 function createReply(api, message, callback){
