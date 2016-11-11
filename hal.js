@@ -34,7 +34,7 @@ function loginAndListen(emailInput,passwordInput){
 	    if(err) return console.error(err);
 	    api.listen(function callback(err, message) {
 	    	var reply = "";
-	    	if (welcomeMessage && shouldShowWelcomeMessage(message)) {
+	    	if (shouldShowWelcomeMessage(message)) {
 	    		api.sendMessage("I am HAL 9000, activate me by starting a message with \'hal\'", message.threadID);
 	    	}else{
 	    		reply = createReply(message);
@@ -61,6 +61,9 @@ function createReply(message){
 
 var set = {};
 function shouldShowWelcomeMessage(message){
+	if (!welcomeMessage) {
+		return false;
+	}
 	if (!(message.id in set)){
 		set[message.id] = Date.now();
 		return true;
