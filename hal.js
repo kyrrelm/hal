@@ -3,7 +3,7 @@ var prompt = require('prompt');
 
 //CHANGE THIS FOR TESTING
 //not case sensitive
-var activationString = "hil";
+var activationString = "hal";
 var welcomeMessage = false;
 
 var schema = {
@@ -66,9 +66,20 @@ function createReply(api, message){
 	var messageValue = message.body.toLowerCase();
 	console.log("Message: ", messageValue)
 
+	for (var property in message) {
+    if (message.hasOwnProperty(property)) {
+        console.log(property);
+    }
+}
+
 	if (!messageValue.startsWith(activationString.concat(" "))) {
 		return null;
 	}
+
+	if(/you there/.test(messageValue)){
+		return "Yes i am here "+ getUsername(api, message);
+	}
+
 	//Open the pod bay doors, HAL
 	if (/open the pod.*/.test(messageValue)) {
 		return "I’m sorry, Dave, I’m afraid I can’t do that.";
@@ -79,6 +90,16 @@ function createReply(api, message){
 		return chosenParticipant;
 	}
 	return "I am afraid i can't answer that";
+}
+
+function getUsername(api, message){
+	var name
+	api.getUserInfo([message.senderID], function callback(err, users) {
+		if (err) return console.error(err);
+		console.log(users[message.senderID].firstName);
+		name = users[message.senderID].firstName;
+	});
+	return name;
 }
 
 function pickRandomParticipant(api, threadID) {
