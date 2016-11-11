@@ -1,6 +1,10 @@
 var login = require("facebook-chat-api");
 var prompt = require('prompt');
 
+//CHANGE THIS FOR TESTING
+//not case sensitive
+var activationString = "hal";
+
 var schema = {
 properties: {
   email: {
@@ -41,7 +45,7 @@ function loginAndListen(emailInput,passwordInput){
 
 
 function createReply(message){
-	if (!message.body.toLowerCase().startsWith("hal ")) {
+	if (!message.body.toLowerCase().startsWith(activationString.concat(" "))) {
 		return null;
 	}
 	reply = "I am afraid i can't answer that";
