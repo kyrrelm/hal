@@ -3,7 +3,7 @@ var prompt = require('prompt');
 
 //CHANGE THIS FOR TESTING
 //not case sensitive
-var activationString = "hil";
+var activationString = "hal";
 var welcomeMessage = false;
 var credentials = {
 	email: "deep.into.my.thoughts@gmail.com",
@@ -67,9 +67,17 @@ function shouldShowWelcomeMessage(message){
 
 function createReply(api, message, callback){
 	var messageValue = message.body.toLowerCase();
+
 	if (!messageValue.startsWith(activationString.concat(" "))) {
 		callback(null);
 	}
+
+	if(/you there/.test(messageValue)){
+		getUsername(api, message, function(name){
+			callback("Yes i am here "+name);
+		})
+	}
+
 	//Open the pod bay doors, HAL
 	else if (/open the pod.*/.test(messageValue)) {
 		callback("I’m sorry, Dave, I’m afraid I can’t do that.");
@@ -84,6 +92,13 @@ function createReply(api, message, callback){
 	else {
 		callback("I am afraid i can't answer that");
 	}
+}
+
+function getUsername(api, message, callback){
+	api.getUserInfo([message.senderID], function(err, users) {
+		if (err) return console.error(err);
+		callback(users[message.senderID].firstName);
+	});
 }
 
 function pickRandomParticipant(api, threadID, callback) {
