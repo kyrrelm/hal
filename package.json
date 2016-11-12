@@ -5,6 +5,7 @@
   "main": "hal.js",
   "dependencies": {
     "facebook-chat-api": "^1.2.0",
+    "lodash": "^4.16.6",
     "prompt": "^1.0.0"
   },
   "devDependencies": {
