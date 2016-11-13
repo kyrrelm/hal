@@ -1,5 +1,5 @@
 import * as prompt from 'prompt';
-import {HAL} from './HAL3000'
+import { HAL } from './HAL3000'
 
 
 const activationString = "hal";
@@ -23,7 +23,7 @@ const schema = {
 
 prompt.start();
 
-prompt.get(schema, function (err, result) {
+prompt.get(schema, (err, result) => {
 	let email = result.email || credentials.email
 	let password = result.password || credentials.password
 

@@ -1,5 +1,5 @@
-const DateUtils = {
+export const DateUtils = {
 	daydiff: function(firstDate, secondDate) {
-		return Math.round((second-first)/(1000*60*60*24));
+		return Math.round((secondDate-firstDate)/(1000*60*60*24));
 	}
 }

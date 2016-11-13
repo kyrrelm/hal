@@ -2,7 +2,7 @@
   "name": "hal",
   "version": "1.0.0",
   "description": "HAL3000 Facebook chat bot",
-  "main": "hal.js",
+  "main": "main.js",
   "dependencies": {
     "facebook-chat-api": "^1.2.0",
     "lodash": "^4.16.6",
