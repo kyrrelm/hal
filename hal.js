@@ -1,6 +1,7 @@
-var login = require("facebook-chat-api");
-var prompt = require('prompt');
-const birthday = 853027200;
+const fs = require('fs');
+const login = require("facebook-chat-api");
+const prompt = require('prompt');
+const birthday = 853027200000;
 
 
 //CHANGE THIS FOR TESTING
@@ -74,9 +75,12 @@ function daydiff(first, second) {
 function throwDices(number){
 	var output = ""
 	for (var i = 0; i < number; i++) {
-		output += Math.ceil(Math.random()*6)+ " ";
+		output += Math.ceil(Math.random()*6);
 	}
-	return output;
+	var msg = {
+		attachment: fs.createReadStream('img/dice'+output+'.png')
+    }
+	return msg;
 }
 
 function createReply(api, message, callback){
@@ -88,16 +92,21 @@ function createReply(api, message, callback){
 	else if(/you there/.test(messageValue)){
 		getUsername(api, message, function(name){
 			callback("Yes i am here "+name);
-		})
+		});
 	}
 	//Open the pod bay doors, HAL
 	else if (/open the pod/.test(messageValue)) {
-		callback("I’m sorry, Dave, I’m afraid I can’t do that.");
+		getUsername(api, message, function(name){
+			callback("I’m sorry, "+name+", I’m afraid I can’t do that.");	
+		});
 	}
 	else if (/how old are you/.test(messageValue) || /your age/.test(messageValue)) {
 		callback("I’m "+daydiff(birthday, Date.now())+" days old");
 	}
-	else if (/created you/.test(messageValue) || /your creator/.test(messageValue)) {
+	else if (/your birthday/.test(messageValue) || /your date of birth/.test(messageValue)) {
+		callback("My birthday is "+new Date(birthday).toString());
+	}
+	else if (/created you/.test(messageValue) || /your creator/.test(messageValue) || /your maker/.test(messageValue) || /made you/.test(messageValue)) {
 		callback("Arthur C. Clarke, Stanley Kubrick, Kyrre Laugerud Moe and Paul Philip Mitchell are my creators <3");
 	}
 	else if (/kristian skog gay/.test(messageValue) || /kristian gay/.test(messageValue) || /skog gay/.test(messageValue)) {
@@ -112,7 +121,7 @@ function createReply(api, message, callback){
 	else if (/who should*/.test(messageValue) || /pick*/.test(messageValue)) {
 		pickRandomParticipant(api, message.threadID, function(chosen) {
 			callback(chosen);
-		})
+		});
 	}
 	else {
 		callback("I am afraid i can't answer that");
