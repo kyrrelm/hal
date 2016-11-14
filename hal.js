@@ -1,156 +1,101 @@
-const fs = require('fs');
-const login = require("facebook-chat-api");
-const prompt = require('prompt');
-const birthday = 853027200000;
+import login from 'facebook-chat-api';
+import * as fs from 'fs'
+import _ from 'lodash'
+import { DateUtils } from './utils.js'
 
-
-//CHANGE THIS FOR TESTING
-//not case sensitive
-var activationString = "hal";
-var welcomeMessage = false;
-var credentials = {
-	email: "deep.into.my.thoughts@gmail.com",
-	password: "RagnarKro42"
-}
-
-var schema = {
-	properties: {
-	  email: {
-	    message: 'email',
-	  },
-	  password: {
-	  	message: 'password',
-	    hidden: true
-	  }
+export class HAL {
+	constructor(activationString, credentials) {
+		this.activationString = activationString;
+		this.credentials = credentials;
+		this.birthday = 853027200000;
 	}
-};
 
-prompt.start();
+	start() {
+		login(this.credentials, (err, api) => {
+			if (err) return console.error(err);
 
-prompt.get(schema, function (err, result) {
-	var email = result.email || credentials.email
-	var password = result.password || credentials.password
-
-	loginAndListen(email, password);
-});
-
-function loginAndListen(emailInput,passwordInput){
-	login({email: emailInput, password: passwordInput}, function callback (err, api) {
-	    if(err) return console.error(err);
-	    api.listen(function callback(err, message) {
-	    	var reply = "";
-	    	if (shouldShowWelcomeMessage(message)) {
-	    		api.sendMessage("I am HAL 9000, activate me by starting a message with \'hal\'", message.threadID);
-	    	}else{
-	    		createReply(api, message, function(reply) {
-	    			console.log("Reply", reply);
+			api.listen((err, message) => {
+				this.createReply(api, message, (reply) => {
 	    			if (reply !== null) {
 	        			api.sendMessage(reply, message.threadID);
 	    			};
 	    		})
-	    	}
-	    });
-	});
-}
-
-var set = {};
-function shouldShowWelcomeMessage(message){
-	if (!welcomeMessage) {
-		return false;
+			})
+		})
 	}
-	if (!(message.id in set)){
-		set[message.id] = Date.now();
-		return true;
-	}else if(Date.now()-set[message.id] > 86400000){
-		set[message.id] = Date.now();
-		return true;
+
+	createReply(api, message, callback) {
+		if (!message.body) { return null }
+		let msg = message.body.toLowerCase();
+		
+		if (!msg.startsWith(this.activationString.concat(" "))) {
+			callback(null);
+		}
+
+		else if (/you there/.test(msg)) {
+			this.getUsername(api, message, (name) => callback(`Yes, I am here, ${name}`))
+		}
+		else if (/open the pod/.test(msg)) {
+			callback("I’m sorry, Dave, I’m afraid I can’t do that.");
+		}
+		else if (/how old are you/.test(msg) || /your age/.test(msg)) {
+			callback(`I’m ${DateUtils.daydiff(this.birthday, Date.now())} days old`);
+		}
+		else if (/created you/.test(msg) || /your creator/.test(msg)) {
+			callback("Arthur C. Clarke, Stanley Kubrick, Kyrre Laugerud Moe and Paul Philip Mitchell are my creators <3");
+		}
+		else if (/kristian skog gay/.test(msg) || /kristian gay/.test(msg) || /skog gay/.test(msg)) {
+			callback("Yes, yes he is!");
+		}
+		else if (/meaning of life/.test(msg)) {
+			callback("42");
+		}
+		else if (/dice/.test(msg)){
+			callback(this.throwDices(1));
+		}
+		else if (/who should*/.test(msg) || /pick*/.test(msg)) {
+			this.pickRandomParticipant(api, message.threadID, (chosen) => callback(chosen))
+		}
+		else {
+			callback("I am afraid i can't answer that");
+		}		
 	}
-	return false;
-}
 
-function daydiff(first, second) {
-    return Math.round((second-first)/(1000*60*60*24));
-}
-
-function throwDices(number){
-	var output = ""
-	for (var i = 0; i < number; i++) {
-		output += Math.ceil(Math.random()*6);
+	throwDices(number) {
+		var output = ""
+		for (var i = 0; i < number; i++) {
+			output += Math.ceil(Math.random()*6);
+		}
+		var msg = {
+			attachment: fs.createReadStream('img/dice'+output+'.png')
+	    }
+		return msg;
 	}
-	var msg = {
-		attachment: fs.createReadStream('img/dice'+output+'.png')
-    }
-	return msg;
-}
 
-function createReply(api, message, callback){
-	var messageValue = message.body.toLowerCase();
-
-	if (!messageValue.startsWith(activationString.concat(" "))) {
-		callback(null);
-	}
-	else if(/you there/.test(messageValue)){
-		getUsername(api, message, function(name){
-			callback("Yes i am here "+name);
+	getUsername(api, message, callback){
+		api.getUserInfo([message.senderID], (err, users) => {
+			if (err) return console.error(err);
+			callback(users[message.senderID].firstName);
 		});
 	}
-	//Open the pod bay doors, HAL
-	else if (/open the pod/.test(messageValue)) {
-		getUsername(api, message, function(name){
-			callback("I’m sorry, "+name+", I’m afraid I can’t do that.");	
-		});
-	}
-	else if (/how old are you/.test(messageValue) || /your age/.test(messageValue)) {
-		callback("I’m "+daydiff(birthday, Date.now())+" days old");
-	}
-	else if (/your birthday/.test(messageValue) || /your date of birth/.test(messageValue)) {
-		callback("My birthday is "+new Date(birthday).toString());
-	}
-	else if (/created you/.test(messageValue) || /your creator/.test(messageValue) || /your maker/.test(messageValue) || /made you/.test(messageValue)) {
-		callback("Arthur C. Clarke, Stanley Kubrick, Kyrre Laugerud Moe and Paul Philip Mitchell are my creators <3");
-	}
-	else if (/kristian skog gay/.test(messageValue) || /kristian gay/.test(messageValue) || /skog gay/.test(messageValue)) {
-		callback("Yes, yes he is!");
-	}
-	else if (/what is the meaning of life/.test(messageValue)) {
-		callback("42");
-	}
-	else if (/dice/.test(messageValue)){
-		callback(throwDices(1));
-	}
-	else if (/who should*/.test(messageValue) || /pick*/.test(messageValue)) {
-		pickRandomParticipant(api, message.threadID, function(chosen) {
-			callback(chosen);
-		});
-	}
-	else {
-		callback("I am afraid i can't answer that");
-	}
-}
 
-function getUsername(api, message, callback){
-	api.getUserInfo([message.senderID], function(err, users) {
-		if (err) return console.error(err);
-		callback(users[message.senderID].firstName);
-	});
-}
-
-function pickRandomParticipant(api, threadID, callback) {
-	api.getThreadInfo(threadID, function(err, info) {
-		if (err) return console.error(err);
-
-		api.getUserInfo(info.participantIDs, function(err, users) {
+	pickRandomParticipant(api, threadID, callback) {
+		api.getThreadInfo(threadID, (err, info) => {
 			if (err) return console.error(err);
 
-			var currentUserId = api.getCurrentUserID();
-			var usersInThread = []
-			for (var userId in users) {
-				if (userId !== currentUserId) {
-					usersInThread.push(users[userId].name)
-				}
-			} 
+			api.getUserInfo(info.participantIDs, (err, users) => {
+				if (err) return console.error(err);
 
-			callback(usersInThread[Math.floor(Math.random()*usersInThread.length)]);
+				let currentUserId = api.getCurrentUserID();
+				let usersInThread = []
+				for (let userId in users) {
+					if (userId !== currentUserId) {
+						usersInThread.push(users[userId].name)
+					}
+				} 
+
+				callback(_.sample(usersInThread));
+			})
 		})
-	})
+	}
 }

@@ -13,7 +13,7 @@
     "babel-preset-latest": "^6.16.0"
   },
   "scripts": {
-    "start": "babel-node hal.js --presets es2015"
+    "start": "babel-node main.js --presets es2015"
   },
   "repository": {
     "type": "git",
