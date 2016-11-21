@@ -8,15 +8,15 @@
     "lodash": "^4.16.6",
     "prompt": "^1.0.0"
   },
-  "scripts": {
-    "babel-version": "babel --version"
-  },
   "devDependencies": {
     "babel-cli": "^6.18.0",
     "babel-preset-latest": "^6.16.0"
   },
   "scripts": {
-    "start": "babel-node main.js --presets es2015"
+    "start": "node ./build/main.js",
+    "babel-version": "babel --version",
+    "build": "./node_modules/.bin/babel src -d build",
+    "serve": "npm run build && npm run start"
   },
   "repository": {
     "type": "git",
